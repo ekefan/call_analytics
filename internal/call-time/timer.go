@@ -1,52 +1,44 @@
 package calltime
 
 import (
-	"fmt"
 	"time"
+
+	"fyne.io/fyne/v2/widget"
+	"fmt"
 )
 
-func StartTimer() time.Duration {
-	var duration time.Duration
+
+var (
+	ticks *time.Ticker
+	callEnded chan bool
+)
+
+func StartTimer(clk *widget.Label) {
+	callEnded = make(chan bool)
+	ticks = time.NewTicker(1 * time.Second)
 	start := time.Now()
 
-	// Channel to communicate commands
-	cmd := make(chan string)
-
-	// Goroutine to read user input
-	go func() {
-		var command string
+	go func(clk *widget.Label){
 		for {
-			fmt.Print("cmd: ")
-			fmt.Scanln(&command)
-			cmd <- command
-			if command == "stop" {
-				break
+			select {
+			case <-callEnded :
+				return
+			case t := <-ticks.C:
+				elapsed := t.Sub(start)
+				hours := int(elapsed.Hours())
+				minutes := int(elapsed.Minutes()) % 60
+				seconds := int(elapsed.Seconds()) % 60
+				format := fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
+				clk.SetText(format)
 			}
+
 		}
-	}()
+	}(clk)
 
-	// Goroutine to update and print the timer
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-			duration = time.Since(start)
-			hours := int(duration.Hours())
-			minutes := int(duration.Minutes()) % 60
-			seconds := int(duration.Seconds()) % 60
 
-			// Move cursor up one line, clear the line, and print the timer
-			fmt.Printf("\033[1A\033[2K%02d : %02d : %02d\ncmd: ", hours, minutes, seconds)
-		}
-	}()
+}
 
-	// Wait for the "stop" command
-	for {
-		command := <-cmd
-		if command == "stop" {
-			break
-		}
-	}
-
-	return duration
-
+func StopTimer() {
+	ticks.Stop()
+	callEnded <- true
 }
