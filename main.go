@@ -1,12 +1,16 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	calltime "github.com/ekefan/call_analytics/internal/call-time"
+	"github.com/ekefan/call_analytics/internal/sheets"
 )
 
 // timeRunning checks if the time is counting for an ongoing call
@@ -18,14 +22,18 @@ func main() {
 	// create instance of the fyne application
 	myApp := app.New()
 
-	
-	var entryContent *fyne.Container
-	var duration *widget.Label
+	var (
+		entryContent *fyne.Container
+		timerContent *fyne.Container
+		duration     *widget.Label
+		engineerDet  *widget.Entry
+		detail1      *widget.Entry
+	)
 
 	// set a new window to display
 	w := myApp.NewWindow("Support Analytics")
 
-	// ======widgets-======
+	// ==============widgets========================================
 	// clk is the clock widget for counting the call duration
 	clk := widget.NewLabel("00:00:00")
 
@@ -44,35 +52,56 @@ func main() {
 	stopBtn := widget.NewButton("stop", func() {
 		if timeRunning {
 			timeRunning = false
-			duration.SetText(clk.Text)
+			durationPlaceHolder := fmt.Sprintf("Call duration: %v", clk.Text)
+			duration.SetText(durationPlaceHolder)
 			clk.SetText("00:00:00")
 			entryContent.Show()
 			calltime.StopTimer()
+			timerContent.Hide()
 		}
-		
+
 	})
 
+	saveBtn := widget.NewButton("save", func() {
+		//get text content from each widget...
+		saveArgs := sheets.CallEntryArgs{// Convert the call entry function to CallEntry datastructure
+			CallTime:        duration.Text,
+			SupportEngineer: engineerDet.Text,
+			CallDetail:     detail1.Text,
+			DateOfEntry: time.Now(),
+		}
+		//pass the data into the saveCallEntry function
+		success := sheets.SaveCallEntry(saveArgs)
+		fmt.Println(success)
+
+	})
 	// wiget for taking the call summary and details
 	duration = widget.NewLabel("Call duration: 00:00:00")
-	duration.SetText(clk.Text)
 
 	// the widget for entry of data
-	engineerDet := widget.NewEntry()
+	engineerDet = widget.NewEntry()
 	engineerDet.PlaceHolder = "Support Engineer:"
 
-	detail1 := widget.NewEntry()
+	detail1 = widget.NewEntry()
 	detail1.PlaceHolder = "Enter detail"
 
-	timerContent := container.NewVSplit(
-	container.New(layout.NewCenterLayout(), clk), 
-	container.New(layout.NewAdaptiveGridLayout(2), startBtn, stopBtn))
-
-	entryContent = container.New(layout.NewVBoxLayout(), duration, engineerDet, detail1)
+	//	===========================Containers=============================
+	timerContent = container.NewBorder(
+		nil, // top
+		container.New(layout.NewAdaptiveGridLayout(2), startBtn, stopBtn), // bottom
+		nil, // left
+		nil, // right
+		container.New(layout.NewCenterLayout(), clk), // center
+	)
+	entryContent = container.NewBorder(
+		nil,     // top
+		saveBtn, // bottom
+		nil,     // left
+		nil,     // right
+		container.New(layout.NewVBoxLayout(), duration, engineerDet, detail1), // center
+	)
 	entryContent.Hide()
 	w.SetContent(container.NewHSplit(entryContent, timerContent))
 	w.Show()
 	myApp.Run()
 }
-
-
-
