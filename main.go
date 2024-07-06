@@ -14,7 +14,10 @@ import (
 )
 
 // timeRunning checks if the time is counting for an ongoing call
-var timeRunning bool
+var (
+	timeRunning bool
+	saveClicked bool
+)
 
 // main, the entry point of the call support analytics program
 func main() {
@@ -44,7 +47,7 @@ func main() {
 			timeRunning = true
 			entryContent.Hide()
 			calltime.StartTimer(clk)
-
+			saveClicked = false
 		}
 	})
 
@@ -54,26 +57,37 @@ func main() {
 			timeRunning = false
 			durationPlaceHolder := fmt.Sprintf("Call duration: %v", clk.Text)
 			duration.SetText(durationPlaceHolder)
-			clk.SetText("00:00:00")
 			entryContent.Show()
 			calltime.StopTimer()
 			timerContent.Hide()
 		}
 
 	})
-
 	saveBtn := widget.NewButton("save", func() {
 		//get text content from each widget...
 		saveArgs := sheets.CallEntryArgs{// Convert the call entry function to CallEntry datastructure
-			CallTime:        duration.Text,
+			CallTime:        clk.Text,
 			SupportEngineer: engineerDet.Text,
 			CallDetail:     detail1.Text,
 			DateOfEntry: time.Now(),
 		}
 		//pass the data into the saveCallEntry function
-		success := sheets.SaveCallEntry(saveArgs)
-		fmt.Println(success)
+		if !saveClicked {
+			success := sheets.SaveCallEntry(saveArgs)
+			if success.ErrMsg != nil {
+				fmt.Printf("Send Message to error widget")
+			}
+			fmt.Printf("send Message to feedback widget")
+			saveClicked = true
+			clk.SetText("00:00:00")
+			timerContent.Show()
+			time.Sleep(2 * time.Second)
+			duration.SetText("")
+			engineerDet.SetText("")
+			detail1.SetText("")
+			entryContent.Hide()
 
+		}
 	})
 	// wiget for taking the call summary and details
 	duration = widget.NewLabel("Call duration: 00:00:00")
