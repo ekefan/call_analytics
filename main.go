@@ -26,11 +26,14 @@ func main() {
 	myApp := app.New()
 
 	var (
-		entryContent *fyne.Container
-		timerContent *fyne.Container
-		duration     *widget.Label
-		engineerDet  *widget.Entry
-		detail1      *widget.Entry
+		entryContent    *fyne.Container
+		timerContent    *fyne.Container
+		duration        *widget.Label
+		supportPersonel *widget.Entry
+		incident        *widget.Entry
+		resolution      *widget.Entry
+		comment        *widget.Entry
+		entrySaved *widget.Label
 	)
 
 	// set a new window to display
@@ -65,11 +68,13 @@ func main() {
 	})
 	saveBtn := widget.NewButton("save", func() {
 		//get text content from each widget...
-		saveArgs := sheets.CallEntryArgs{// Convert the call entry function to CallEntry datastructure
+		saveArgs := sheets.CallEntryArgs{ // Convert the call entry function to CallEntry datastructure
 			CallTime:        clk.Text,
-			SupportEngineer: engineerDet.Text,
-			CallDetail:     detail1.Text,
-			DateOfEntry: time.Now(),
+			SupportPersonel: supportPersonel.Text,
+			Incident:      incident.Text,
+			Resolution:   resolution.Text,
+			Comment: comment.Text,
+			DateOfEntry:     time.Now(),
 		}
 		//pass the data into the saveCallEntry function
 		if !saveClicked {
@@ -77,27 +82,37 @@ func main() {
 			if success.ErrMsg != nil {
 				fmt.Printf("Send Message to error widget")
 			}
-			fmt.Printf("send Message to feedback widget")
+			entrySaved.Show()
 			saveClicked = true
 			clk.SetText("00:00:00")
 			timerContent.Show()
 			time.Sleep(2 * time.Second)
 			duration.SetText("")
-			engineerDet.SetText("")
-			detail1.SetText("")
+			supportPersonel.SetText("")
+			incident.SetText("")
 			entryContent.Hide()
 
 		}
 	})
 	// wiget for taking the call summary and details
 	duration = widget.NewLabel("Call duration: 00:00:00")
+	entrySaved = widget.NewLabel("Saved Successfully")
+	// entrySaved.Hide()
 
 	// the widget for entry of data
-	engineerDet = widget.NewEntry()
-	engineerDet.PlaceHolder = "Support Engineer:"
+	supportPersonel = widget.NewEntry()
+	supportPersonel.PlaceHolder = "Support Personel:"
 
-	detail1 = widget.NewEntry()
-	detail1.PlaceHolder = "Enter detail"
+	incident = widget.NewEntry()
+	incident.PlaceHolder = "Incident:"
+
+	resolution = widget.NewEntry()
+	resolution.PlaceHolder = "Resolution:"
+
+	comment = widget.NewEntry()
+	comment.PlaceHolder = "Comment"
+
+
 
 	//	===========================Containers=============================
 	timerContent = container.NewBorder(
@@ -112,7 +127,7 @@ func main() {
 		saveBtn, // bottom
 		nil,     // left
 		nil,     // right
-		container.New(layout.NewVBoxLayout(), duration, engineerDet, detail1), // center
+		container.New(layout.NewVBoxLayout(), duration, supportPersonel, incident), // center
 	)
 	entryContent.Hide()
 	w.SetContent(container.NewHSplit(entryContent, timerContent))
