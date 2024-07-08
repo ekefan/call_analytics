@@ -13,8 +13,6 @@ import (
 	"github.com/ekefan/call_analytics/internal/sheets"
 )
 
-// timeRunning checks if the time is counting for an ongoing call
-
 // main, the entry point of the call support analytics program
 func main() {
 
@@ -36,27 +34,32 @@ func main() {
 
 	// set a new window to display
 	w := myApp.NewWindow("Support Analytics")
+	w.Resize(fyne.Size{Width: 800, Height: 650})
 
 	// ==============widgets========================================
 	// clk is the clock widget for counting the call duration
 	clk := widget.NewLabel("00:00:00")
 
+	// btns defined with out any callback
+	startBtn := widget.NewButton("Start", nil)
+	stopBtn := widget.NewButton("Stop", nil)
+	saveBtn := widget.NewButton("Save", nil)
+
 	// startBtn button used to start the clock
-	startBtn := widget.NewButton("Start", func() {
-		//check if the timer is running
+	startBtn.OnTapped = func() {
+		// check if the timer is running
 		if !timeRunning {
 			timeRunning = true
-			entryContent.Hide()
+			// entryContent.Hide() //
 			calltime.StartTimer(clk)
+			startBtn.Disable() // Disable the start button
+			saveBtn.Enable()
 			saveClicked = false
 		}
-	})
-
-	if timeRunning {
-		startBtn.Disable()
 	}
-	// button used to trigger eveents that helps to collect dataa
-	stopBtn := widget.NewButton("stop", func() {
+
+	// button used to trigger events that help to collect data
+	stopBtn.OnTapped = func() {
 		if timeRunning {
 			timeRunning = false
 			durationPlaceHolder := fmt.Sprintf("Call duration: %v", clk.Text)
@@ -65,10 +68,11 @@ func main() {
 			calltime.StopTimer()
 			timerContent.Hide()
 		}
+	}
 
-	})
-	saveBtn := widget.NewButton("save", func() {
-		//get text content from each widget...
+	// saveBtn button used to save the call entry
+	saveBtn.OnTapped = func() {
+		// get text content from each widget...
 		saveArgs := sheets.CallEntryArgs{ // Convert the call entry function to CallEntry datastructure
 			CallTime:        clk.Text,
 			SupportPersonel: supportPersonel.Text,
@@ -77,8 +81,10 @@ func main() {
 			Comment:         comment.Text,
 			DateOfEntry:     time.Now(),
 		}
-		//pass the data into the saveCallEntry function
+		// pass the data into the saveCallEntry function
 		if !saveClicked {
+			// convert saveArgs to slice... check for empty place holder...
+			//if empty... show... enter all fields widget
 			success := sheets.SaveCallEntry(saveArgs)
 			if success.ErrMsg != nil {
 				fmt.Printf("Send Message to error widget")
@@ -87,6 +93,7 @@ func main() {
 			saveClicked = true
 			clk.SetText("00:00:00")
 			timerContent.Show()
+			startBtn.Enable() // Enable the start button again
 			time.Sleep(2 * time.Second)
 			entrySaved.Hide()
 			duration.SetText("")
@@ -95,10 +102,10 @@ func main() {
 			resolution.SetText("")
 			comment.SetText("")
 			entryContent.Hide()
-
 		}
-	})
-	// wiget for taking the call summary and details
+	}
+
+	// widget for taking the call summary and details
 	duration = widget.NewLabel("Call duration: 00:00:00")
 	entrySaved = widget.NewLabel("Saved Successfully")
 	entrySaved.Hide()
