@@ -15,9 +15,9 @@ const AppName string = "VATSCA"
 type CallEntryArgs struct {
 	CallTime        string
 	SupportPersonel string
-	Incident      string
-	Resolution string
-	Comment string
+	Incident        string
+	Resolution      string
+	Comment         string
 	DateOfEntry     time.Time
 }
 type SaveResp struct {
@@ -82,14 +82,13 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 	return SaveResp{ErrMsg: nil, SuccessMsg: "Saved successfully"}
 }
 
-
-func errorResp(err error, msg string, ) SaveResp{
+func errorResp(err error, msg string) SaveResp {
 	return SaveResp{
-		ErrMsg: fmt.Errorf("%v: %s", msg, err),
+		ErrMsg:     fmt.Errorf("%v: %s", msg, err),
 		SuccessMsg: "",
 	}
 }
-func appendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string, error){
+func appendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string, error) {
 	// Determine the next empty row
 	sheetName := "Sheet1"
 	rows, err := f.GetRows(sheetName)
@@ -112,11 +111,10 @@ func appendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string
 	f.SetCellValue(sheetName, fmt.Sprintf("D%d", nextRow), incident)
 	f.SetCellValue(sheetName, fmt.Sprintf("E%d", nextRow), resolution)
 	f.SetCellValue(sheetName, fmt.Sprintf("F%d", nextRow), comment)
-	
 
 	// Save the file
 	if err := f.SaveAs(filePath); err != nil {
-		
+
 		return "", fmt.Errorf("failed to save file: %v", err)
 	}
 
