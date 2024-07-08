@@ -14,8 +14,10 @@ const AppName string = "VATSCA"
 
 type CallEntryArgs struct {
 	CallTime        string
-	SupportEngineer string
-	CallDetail      string
+	SupportPersonel string
+	Incident      string
+	Resolution string
+	Comment string
 	DateOfEntry     time.Time
 }
 type SaveResp struct {
@@ -59,9 +61,11 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 		}
 		// Set headers
 		f.SetCellValue("Sheet1", "A1", "Date")
-		f.SetCellValue("Sheet1", "B1", "Call Duration")
-		f.SetCellValue("Sheet1", "C1", "Support Engineer")
-		f.SetCellValue("sheet1", "D1", "Details")
+		f.SetCellValue("Sheet1", "B1", "Support Personel")
+		f.SetCellValue("Sheet1", "C1", "Call Duration")
+		f.SetCellValue("sheet1", "D1", "Incident")
+		f.SetCellValue("sheet1", "E1", "Resolution")
+		f.SetCellValue("sheet1", "F1", "Comment")
 
 		f.SetActiveSheet(index)
 		// Save the file
@@ -97,16 +101,18 @@ func appendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string
 	// Add new data
 	date := callEntry.DateOfEntry
 	callDuration := callEntry.CallTime
-	supportEngineer := callEntry.SupportEngineer
-	details := callEntry.CallDetail
-
-	fmt.Println(details, supportEngineer)
-	// dateTime := time.Now().Format("2006-01-02 15:04:05")
+	supportPersonel := callEntry.SupportPersonel
+	incident := callEntry.Incident
+	resolution := callEntry.Resolution
+	comment := callEntry.Comment
 
 	f.SetCellValue(sheetName, fmt.Sprintf("A%d", nextRow), date)
-	f.SetCellValue(sheetName, fmt.Sprintf("B%d", nextRow), callDuration)
-	f.SetCellValue(sheetName, fmt.Sprintf("C%d", nextRow), supportEngineer)
-	f.SetCellValue(sheetName, fmt.Sprintf("D%d", nextRow), details)
+	f.SetCellValue(sheetName, fmt.Sprintf("B%d", nextRow), supportPersonel)
+	f.SetCellValue(sheetName, fmt.Sprintf("C%d", nextRow), callDuration)
+	f.SetCellValue(sheetName, fmt.Sprintf("D%d", nextRow), incident)
+	f.SetCellValue(sheetName, fmt.Sprintf("E%d", nextRow), resolution)
+	f.SetCellValue(sheetName, fmt.Sprintf("F%d", nextRow), comment)
+	
 
 	// Save the file
 	if err := f.SaveAs(filePath); err != nil {
