@@ -14,10 +14,6 @@ import (
 )
 
 // timeRunning checks if the time is counting for an ongoing call
-var (
-	timeRunning bool
-	saveClicked bool
-)
 
 // main, the entry point of the call support analytics program
 func main() {
@@ -32,8 +28,10 @@ func main() {
 		supportPersonel *widget.Entry
 		incident        *widget.Entry
 		resolution      *widget.Entry
-		comment        *widget.Entry
-		entrySaved *widget.Label
+		comment         *widget.Entry
+		entrySaved      *widget.Label
+		timeRunning     bool
+		saveClicked     bool
 	)
 
 	// set a new window to display
@@ -54,6 +52,9 @@ func main() {
 		}
 	})
 
+	if timeRunning {
+		startBtn.Disable()
+	}
 	// button used to trigger eveents that helps to collect dataa
 	stopBtn := widget.NewButton("stop", func() {
 		if timeRunning {
@@ -71,9 +72,9 @@ func main() {
 		saveArgs := sheets.CallEntryArgs{ // Convert the call entry function to CallEntry datastructure
 			CallTime:        clk.Text,
 			SupportPersonel: supportPersonel.Text,
-			Incident:      incident.Text,
-			Resolution:   resolution.Text,
-			Comment: comment.Text,
+			Incident:        incident.Text,
+			Resolution:      resolution.Text,
+			Comment:         comment.Text,
 			DateOfEntry:     time.Now(),
 		}
 		//pass the data into the saveCallEntry function
@@ -87,9 +88,12 @@ func main() {
 			clk.SetText("00:00:00")
 			timerContent.Show()
 			time.Sleep(2 * time.Second)
+			entrySaved.Hide()
 			duration.SetText("")
 			supportPersonel.SetText("")
 			incident.SetText("")
+			resolution.SetText("")
+			comment.SetText("")
 			entryContent.Hide()
 
 		}
@@ -97,7 +101,7 @@ func main() {
 	// wiget for taking the call summary and details
 	duration = widget.NewLabel("Call duration: 00:00:00")
 	entrySaved = widget.NewLabel("Saved Successfully")
-	// entrySaved.Hide()
+	entrySaved.Hide()
 
 	// the widget for entry of data
 	supportPersonel = widget.NewEntry()
@@ -112,8 +116,6 @@ func main() {
 	comment = widget.NewEntry()
 	comment.PlaceHolder = "Comment"
 
-
-
 	//	===========================Containers=============================
 	timerContent = container.NewBorder(
 		nil, // top
@@ -123,12 +125,13 @@ func main() {
 		container.New(layout.NewCenterLayout(), clk), // center
 	)
 	entryContent = container.NewBorder(
-		nil,     // top
-		saveBtn, // bottom
-		nil,     // left
-		nil,     // right
-		container.New(layout.NewVBoxLayout(), duration, supportPersonel, incident), // center
+		nil, // top
+		container.New(layout.NewVBoxLayout(), entrySaved, saveBtn), // bottom
+		nil, // left
+		nil, // right
+		container.New(layout.NewVBoxLayout(), duration, supportPersonel, incident, resolution, comment), // center
 	)
+
 	entryContent.Hide()
 	w.SetContent(container.NewHSplit(entryContent, timerContent))
 	w.Show()
