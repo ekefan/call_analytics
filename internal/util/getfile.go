@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"fmt"
 )
+// GetFilePath returns the file path of the saved excel sheet 
+// if unable, an error is returned
 func GetFilePath(appName string) (string, error) {
 	
 	// Get the current month and year
@@ -35,3 +37,5 @@ func GetFilePath(appName string) (string, error) {
 	filePath := filepath.Join(appFolder, fileName)
 	return filePath, nil
 }
+
+
