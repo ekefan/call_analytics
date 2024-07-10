@@ -9,7 +9,7 @@ import (
 	excel "github.com/xuri/excelize/v2"
 )
 
-const AppName string = "VATSCA"
+const AppName string = "Call Panda"
 
 type CallEntryArgs struct {
 	CallTime        string
@@ -18,11 +18,6 @@ type CallEntryArgs struct {
 	Resolution      string
 	Comment         string
 	DateOfEntry     time.Time
-}
-
-type SaveResp struct {
-	ErrMsg     error
-	SuccessMsg string
 }
 
 func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
@@ -46,7 +41,7 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 			return errorResp(err, "failed to open file:")
 		}
 		// Append data
-		_, err := appendData(f, filePath, callEntry)
+		_, err := AppendData(f, filePath, callEntry)
 		if err != nil {
 			return errorResp(err, "can't append data to sheet")
 		}
@@ -97,69 +92,10 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 			return errorResp(err, "failed to create file:")
 		}
 		// Append data
-		_, err = appendData(f, filePath, callEntry)
+		_, err = AppendData(f, filePath, callEntry)
 		if err != nil {
 			return errorResp(err, "can't append data to sheet")
 		}
 	}
-
-	// Adjust the width of the columns
-	// if err := adjustColumnWidth(f, "Sheet1", []string{"A", "B", "C", "D", "E", "F"}); err != nil {
-	// 	return errorResp(err, "failed to adjust column width")
-	// }
-
 	return SaveResp{ErrMsg: nil, SuccessMsg: "Saved successfully"}
 }
-
-func errorResp(err error, msg string) SaveResp {
-	return SaveResp{
-		ErrMsg:     fmt.Errorf("%v: %s", msg, err),
-		SuccessMsg: "",
-	}
-}
-
-func appendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string, error) {
-	// Determine the next empty row
-	sheetName := "Sheet1"
-	rows, err := f.GetRows(sheetName)
-	if err != nil {
-		return "", fmt.Errorf("failed to get rows: %v", err)
-	}
-	nextRow := len(rows) + 1
-
-	// Add new data
-	date := callEntry.DateOfEntry
-	callDuration := callEntry.CallTime
-	supportPersonel := callEntry.SupportPersonel
-	incident := callEntry.Incident
-	resolution := callEntry.Resolution
-	comment := callEntry.Comment
-
-	f.SetCellValue(sheetName, fmt.Sprintf("A%d", nextRow), date)
-	f.SetCellValue(sheetName, fmt.Sprintf("B%d", nextRow), supportPersonel)
-	f.SetCellValue(sheetName, fmt.Sprintf("C%d", nextRow), callDuration)
-	f.SetCellValue(sheetName, fmt.Sprintf("D%d", nextRow), incident)
-	f.SetCellValue(sheetName, fmt.Sprintf("E%d", nextRow), resolution)
-	f.SetCellValue(sheetName, fmt.Sprintf("F%d", nextRow), comment)
-
-	// Save the file
-	if err := f.SaveAs(filePath); err != nil {
-		return "", fmt.Errorf("failed to save file: %v", err)
-	}
-
-	return "success", nil
-}
-
-// func adjustColumnWidth(f *excel.File, sheetName string, columns []string) error {
-// 	// Set all columns to a larger width
-// 	const largeWidth = 30 // Adjust as needed
-// 	f.SetColWidth(sheetName, columns[0], columns[len(columns)-1], largeWidth)
-
-// 	return nil
-// }
-
-// create sheet util...
-// put function for appending data
-// function for setting cell value
-// error response
-// adjusting cell value....
