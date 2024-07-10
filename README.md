@@ -7,3 +7,5 @@ I discovered they didn't have an automated way for getting this data for analysi
 This tool, uses fyne ui toolkit, records call details and creates and excel sheets where the analytics can be generated from.
 
 I will be creating a windows setup file since the support team uses windows pc.
+
+For the tests... I will write them as soon as possible...
