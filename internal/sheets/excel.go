@@ -25,12 +25,6 @@ type SaveResp struct {
 	SuccessMsg string
 }
 
-type Style struct {
-	Font struct {
-		Bold bool `json:"bold"`
-	} `json:"font"`
-}
-
 func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 	// Get file path based on the date
 	filePath, err := util.GetFilePath(AppName)
@@ -39,14 +33,14 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 	}
 
 	fileExist := true
-	// open the file and if one doesn't exist
+	// check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		fileExist = false
 	}
 
 	var f *excel.File
 	if fileExist {
-		//open the existing File
+		//open the file if it exist
 		f, err = excel.OpenFile(filePath)
 		if err != nil {
 			return errorResp(err, "failed to open file:")
@@ -57,7 +51,7 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 			return errorResp(err, "can't append data to sheet")
 		}
 	} else {
-		// Create a new file
+		// Or create a new file, create a sheet, style the headers, and append new data
 		f = excel.NewFile()
 		// Create a new sheet
 		index, err := f.NewSheet("Sheet1")
@@ -89,12 +83,12 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 			// Apply style to header
 			f.SetCellStyle("Sheet1", header, header, styleID)
 
-		    // Increase default column width to prevent ####### in cells
+			// Increase default column width to prevent ####### in cells
 			err := f.SetColWidth("sheet1", columns[i], columns[i], 20.00)
 			if err != nil {
 				fmt.Printf("errrrrr: %v", err)
 			}
-		
+
 		}
 
 		f.SetActiveSheet(index)
@@ -163,7 +157,6 @@ func appendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string
 
 // 	return nil
 // }
-
 
 // create sheet util...
 // put function for appending data
