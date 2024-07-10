@@ -65,10 +65,11 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 			return errorResp(err, "failed to create file sheet")
 		}
 
-		// Create bold style for headers
+		// Create Style for headers
 		style := &excel.Style{
 			Font: &excel.Font{
 				Bold: true,
+				Size: 14,
 			},
 		}
 		styleID, err := f.NewStyle(style)
@@ -88,15 +89,12 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 			// Apply style to header
 			f.SetCellStyle("Sheet1", header, header, styleID)
 
-			width, _ := f.GetColWidth("sheet1", columns[i])
-			fmt.Printf("col width of %s: %v\n", header, width)
+		    // Increase default column width to prevent ####### in cells
 			err := f.SetColWidth("sheet1", columns[i], columns[i], 20.00)
 			if err != nil {
 				fmt.Printf("errrrrr: %v", err)
 			}
-			fmt.Printf("after changinging the width\n")
-			width, _ = f.GetColWidth("sheet1", columns[i])
-			fmt.Printf("col width of %s: %v\n", header, width)
+		
 		}
 
 		f.SetActiveSheet(index)
@@ -165,3 +163,10 @@ func appendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string
 
 // 	return nil
 // }
+
+
+// create sheet util...
+// put function for appending data
+// function for setting cell value
+// error response
+// adjusting cell value....
