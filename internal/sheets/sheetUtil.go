@@ -31,7 +31,7 @@ func AppendData(f *excel.File, filePath string, callEntry CallEntryArgs) (string
 	nextRow := len(rows) + 1
 
 	// Add new data
-	date := string(callEntry.DateOfEntry.Format("2006/01/02"))
+	date := string(callEntry.DateOfEntry.Format("2006/01/02 15:04:05"))
 	callDuration := string(callEntry.CallTime)
 	supportPersonel := string(callEntry.SupportPersonel)
 	incident := string(callEntry.Incident)
@@ -56,7 +56,6 @@ func addNewData(f *excel.File, filePath, sheetName string, row int, cellValues [
 	for _, value := range cellValues {
 		//set cell value
 		columnName = string(column)
-		fmt.Println(columnName)
 		cell := fmt.Sprintf("%s%d", columnName, row)
 		f.SetCellValue(sheetName, cell, value)
 

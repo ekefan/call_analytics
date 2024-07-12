@@ -33,7 +33,7 @@ func main() {
 	)
 
 	// set a new window to display
-	w := myApp.NewWindow("Support Analytics")
+	w := myApp.NewWindow("Call Panda")
 	w.Resize(fyne.Size{Width: 800, Height: 650})
 
 	// ==============widgets========================================

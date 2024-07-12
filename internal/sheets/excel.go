@@ -10,6 +10,7 @@ import (
 )
 
 const AppName string = "Call Panda"
+const defaultColWidth float64 = 25.00
 
 type CallEntryArgs struct {
 	CallTime        string
@@ -69,7 +70,7 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 		// Set headers
 		headers := []string{"A1", "B1", "C1", "D1", "E1", "F1"}
 		columns := []string{"A", "B", "C", "D", "E", "F"}
-		headerValues := []string{"Date", "Support Personel", "Call Duration", "Incident", "Resolution", "Comment"}
+		headerValues := []string{"Date", "Call Duration", "Support Personel", "Incident", "Resolution", "Comment"}
 
 		for i, header := range headers {
 			//set cell value
@@ -79,7 +80,7 @@ func SaveCallEntry(callEntry CallEntryArgs) SaveResp {
 			f.SetCellStyle("Sheet1", header, header, styleID)
 
 			// Increase default column width to prevent ####### in cells
-			err := f.SetColWidth("sheet1", columns[i], columns[i], 20.00)
+			err := f.SetColWidth("sheet1", columns[i], columns[i], defaultColWidth)
 			if err != nil {
 				fmt.Printf("errrrrr: %v", err)
 			}
