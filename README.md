@@ -14,7 +14,7 @@
 
 - **UI:** Fyne toolkit
 - **Data sheet:** Excelize
-- **Logic:** Pure Go
+- **Logic:** Go
   <br />
 
 ## Features:
@@ -27,6 +27,7 @@ I'm currently doing my SIWES program as a network intern at Vas Technologies, a 
 <br/><br/>
 But with Call Panda, they only have to leave the desktop application running. When a call comes through, they hit the start button, hit the stop button when it ends, and enter specific details of the call. It automatically saves this entry in an Excel sheet.
 
-## Plans for the Application:
+## Possible Upgrades for the Application:
+
 - Automatically calculate the required data based on the requests of the MD/CEO.
 - Improve the UI of the application.
